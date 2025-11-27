@@ -1,13 +1,19 @@
 from fastapi import FastAPI
-from dotenv import load_dotenv
+from dotenv import load_dotenv 
 from agents import Runner
 from healthcare_agent.booking_agent import booking_agent
 load_dotenv()
 app = FastAPI()
 
 @app.get("/")
-async def read_root():
+def read_root(): 
     return {"Hello": "World"}   
+
+
+# @app.get("/a")
+# def read_a():
+#     # time.sleep()
+#     return {"Hello": "World"}  
 
 
 chat_history = []

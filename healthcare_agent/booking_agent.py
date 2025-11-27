@@ -1,5 +1,18 @@
-from agents import Agent, Runner,function_tool
+from agents import Agent, function_tool
 from pydantic import BaseModel
+import httpx
+from agents import set_tracing_disabled
+
+set_tracing_disabled(True)
+from openai import AsyncOpenAI
+from agents import set_default_openai_client
+from agents import set_default_openai_api
+
+http_client = httpx.AsyncClient(verify=False)
+custom_client = AsyncOpenAI(api_key="YOUR_API_KEY",
+    base_url="https://generativelanguage.googleapis.com/v1beta/openai/", http_client=http_client)
+set_default_openai_client(custom_client)
+set_default_openai_api("chat_completions")
 
 class AppointmentDetails(BaseModel):
     name : str
@@ -43,6 +56,7 @@ def appointment_scheduler_tool(appointment : AppointmentDetails) -> str:
 
 booking_agent = Agent(
     name="Booking Agent",
+    model="gemini-2.5-flash",
     handoff_description="Specialist agent for booking healthcare appointments.",
     instructions=f"You are a booking agent that helps users to schedule healthcare appointments. Gather necessary details such that present in {AppointmentDetails} class, all fields are required. Confirm the details with the user before finalizing the booking. If the user provides incomplete information, ask for the missing details. Once all details are collected, Verify all the details with user and after confirmation use the appointment scheduling tool to book the appointment.",
     tools=[appointment_scheduler_tool,get_current_datetime_tool],
